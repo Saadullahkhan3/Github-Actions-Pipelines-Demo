@@ -9,6 +9,9 @@ on:
 jobs:
   Lint:   # Job name
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./app/
     steps:
       - name: Checkout the code
         uses: actions/setup-node@v4
@@ -16,8 +19,11 @@ jobs:
         run: npm run lint
 
   Test:
-    needs: Lint
+    needs: Lint   # Only run when Lint job passed
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./app/
     steps:
       - name: Checkout the code
         uses: actions/setup-node@v4
