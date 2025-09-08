@@ -1,26 +1,26 @@
 name: Test and Lint
 
 on:
-  - push: 
+  push: 
     branches: [main]
-  - workflow_dispatch: {}   # Manual Trigger allow
+  workflow_dispatch: {}   # Manual Trigger allow
 
 
 jobs:
-  - Lint:   # Job name
-    - runs-on: ubuntu-latest
-    - steps:
+  Lint:   # Job name
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout the code
-        use: checkout@v4
+        uses: actions/setup-node@v4
       - name: Linting
         run: npm run lint
 
-  - Test:
-    - needs: Lint
-    - runs-on: ubuntu-latest
-    - steps:
+  Test:
+    needs: Lint
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout the code
-        use: checkout@v4
+        uses: actions/setup-node@v4
       - name: Testing
         run: npm test 
         
