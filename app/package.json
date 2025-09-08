@@ -1,0 +1,41 @@
+{
+  "name": "my-app",
+  "version": "1.0.0",
+  "description": "My app is the best app",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Saadullahkhan3/Github-Actions-Pipelines-Demo.git"
+  },
+  "author": "Saadullah Khan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Saadullahkhan3/Github-Actions-Pipelines-Demo/issues"
+  },
+  "homepage": "https://github.com/Saadullahkhan3/Github-Actions-Pipelines-Demo#readme",
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "testMatch": [
+      "**/test/**/*.test.js"
+    ]
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.35.0",
+    "eslint": "^9.35.0",
+    "globals": "^16.3.0",
+    "jest": "^30.1.3",
+    "supertest": "^7.1.4"
+  }
+}
