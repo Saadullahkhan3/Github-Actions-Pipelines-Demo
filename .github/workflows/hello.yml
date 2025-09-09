@@ -1,5 +1,6 @@
 name: Hello from Github Action!
 
+
 on:
   push:
     branches: [main]
@@ -8,11 +9,21 @@ on:
 
 jobs:
   Greeting:
-    # runs-on: ubuntu-lastest   # OLD
+    # OLD: This spelling mistake is the reason that this action was 
+    # stucked in queue for more than 19 hours and stopped force-fully
+    # They should gave error instead! this is more like a BUG
+    # runs-on: ubuntu-lastest   
     runs-on: ubuntu-latest
+
+    # Bash couldn't access the Github's variables and secrets directly,
+    # these vars needed to be set as env vars in order to access them in bash. THIS IS THE ONLY WAY!
+    env:
+      YOUR_NAME: ${{ vars.YOUR_NAME }} 
+      MY_NAME: ${{ vars.MY_NAME }}
     steps:
       - name: Checkout the Code
         uses: actions/checkout@v4
 
       - name: Running Shell Script
         run: bash run.sh
+
