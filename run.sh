@@ -1,0 +1,1 @@
+echo "Hello World from {{ vars.YOUR_NAME }} and {{ vars.MY_NAME }}"

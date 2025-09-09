@@ -1,0 +1,17 @@
+name: Hello from Github Action
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+
+jobs:
+  Greeting:
+    runs-on: ubuntu-lastest
+    steps:
+      - name: Checkout the Code
+        uses: actions/checkout@v4
+
+      - name: Running Shell Script
+        run: bash run.sh
