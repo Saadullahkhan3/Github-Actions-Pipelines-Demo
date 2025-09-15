@@ -1,188 +1,183 @@
 name: Matrix Testing & Conditional Build
 
 on:
-  push:
-    branches: [main]
-    tags:
-      - 'v*.*.*'
-  pull_request:
-  schedule:
-    - cron: "0 3 * * *"   # Nightly test at 3 AM UTC
-  workflow_dispatch:
-    inputs:
-      skip_build:
-        description: "Skip build step?"
-        required: false
-        default: "false"
+    push:
+        branches: [main]
+        tags:
+            - "v*.*.*"
+    pull_request:
+    schedule:
+        - cron: "0 3 * * *" # Nightly test at 3 AM UTC
+    workflow_dispatch:
+        inputs:
+            skip_build:
+                description: "Skip build step?"
+                required: false
+                default: "false"
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+    contents: read
+    pages: write
+    id-token: write
 
 # concurrency:
 #   group: matrix-${{ github.ref }}
 #   cancel-in-progress: true
 
 jobs:
-  Matrix-Test:
-    runs-on: ${{ matrix.os }}
-    environment: qa
-    # concurrency:
-    #   group: matrix-${{ github.ref }}
-    #   # group: matrix-test-${{ matrix.os }}-${{ matrix['node-version'] }}-${{ github.ref }}
-    #   cancel-in-progress: true
-    defaults:
-      run:
-        working-directory: ./frontend/
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-        node-version: [16, 18, 20]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    Matrix-Test:
+        runs-on: ${{ matrix.os }}
+        environment: qa
+        # concurrency:
+        #   group: matrix-${{ github.ref }}
+        #   # group: matrix-test-${{ matrix.os }}-${{ matrix['node-version'] }}-${{ github.ref }}
+        #   cancel-in-progress: true
+        defaults:
+            run:
+                working-directory: ./frontend/
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [ubuntu-latest, windows-latest]
+                node-version: [16, 18, 20]
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-      # - name: Setup Node
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: 20
-      #     cache: "npm"
-      #     cache-dependency-path: "frontend/package-lock.json"
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ matrix.node-version }}
+            # - name: Setup Node
+            #   uses: actions/setup-node@v4
+            #   with:
+            #     node-version: 20
+            #     cache: "npm"
+            #     cache-dependency-path: "frontend/package-lock.json"
 
-      - name: Install dependencies
-        run: npm ci
+            - name: Install dependencies
+              run: npm ci
 
-      - name: Run tests
-        run: |
-          mkdir -p test-results
-          npm test > test-results/results-${{ matrix.os }}-${{ matrix.node-version }}.txt
+            - name: Run tests
+              run: |
+                  mkdir -p test-results
+                  npm test > test-results/results-${{ matrix.os }}-${{ matrix.node-version }}.txt
 
-          # npm test -- --ci > test-results/results-ci-${{ matrix.node-version }}.txt
+                  # npm test -- --ci > test-results/results-ci-${{ matrix.node-version }}.txt
 
-      - name: Debug
-        run: echo "frontend/test-results/results-${{ matrix.os }}-${{ matrix.node-version }}.txt"
-        
-      - name: Upload test results
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-${{ matrix.os }}-${{ matrix.node-version }}
-          path: frontend/test-results/results-${{ matrix.os }}-${{ matrix.node-version }}.txt
+            - name: Debug
+              run: echo "frontend/test-results/results-${{ matrix.os }}-${{ matrix.node-version }}.txt"
 
-  Build:
-    runs-on: ubuntu-latest
-    needs: Matrix-Test
-    if: |
-      (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) &&
-      github.event.inputs.skip_build != 'true'
-    defaults:
-      run:
-        working-directory: frontend/
-    concurrency:
-      group: build-${{ github.ref }}
-      # group: matrix-test-${{ matrix.os }}-${{ matrix['node-version'] }}-${{ github.ref }}
-      cancel-in-progress: true
-    steps:
-      - name: Download all test results
-        uses: actions/download-artifact@v4
-        with:
-          path: test-results
+            - name: Upload test results
+              uses: actions/upload-artifact@v4
+              with:
+                  name: test-results-${{ matrix.os }}-${{ matrix.node-version }}
+                  path: frontend/test-results/results-${{ matrix.os }}-${{ matrix.node-version }}.txt
 
-      - name: Checkout code
-        uses: actions/checkout@v4
+    Build:
+        runs-on: ubuntu-latest
+        needs: Matrix-Test
+        if: |
+            (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) &&
+            github.event.inputs.skip_build != 'true'
+        defaults:
+            run:
+                working-directory: frontend/
+        concurrency:
+            group: build-${{ github.ref }}
+            # group: matrix-test-${{ matrix.os }}-${{ matrix['node-version'] }}-${{ github.ref }}
+            cancel-in-progress: true
+        steps:
+            - name: Download all test results
+              uses: actions/download-artifact@v4
+              with:
+                  path: test-results
 
-      # - name: Summarize test results
-      #   run: |
-      #     echo "=== Combined Test Results ==="
-      #     cat test-results/*/results-*.txt > test-results/all-results.txt
-      #     cat test-results/all-results.txt
+            - name: Checkout code
+              uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+            # - name: Summarize test results
+            #   run: |
+            #     echo "=== Combined Test Results ==="
+            #     cat test-results/*/results-*.txt > test-results/all-results.txt
+            #     cat test-results/all-results.txt
 
-      - name: Install dependencies
-        run: npm ci
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
 
-      - name: Build project
-        run: |
-          npm run build
-          mkdir -p dist
-          echo "Build complete for $GITHUB_SHA" > dist/build.txt
+            - name: Install dependencies
+              run: npm ci
 
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-dist
-          path: frontend/dist/
+            - name: Build project
+              run: |
+                  npm run build
+                  mkdir -p dist
+                  echo "Build complete for $GITHUB_SHA" > dist/build.txt
 
+            - name: Upload build artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: build-dist
+                  path: frontend/dist/
 
-  Deploy-to-GH-Pages:
-    runs-on: ubuntu-latest
-    needs: Build
-    # if: github.ref == 'refs/heads/dev'
-    environment: qa
-    concurrency:
-      group: deploy-qa-${{ github.ref }}
-      cancel-in-progress: true
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    Deploy-to-GH-Pages:
+        runs-on: ubuntu-latest
+        needs: Build
+        # if: github.ref == 'refs/heads/dev'
+        environment: qa
+        concurrency:
+            group: deploy-qa-${{ github.ref }}
+            cancel-in-progress: true
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build-dist
-          path: .
-          # path: ./dist
-          
-      - name: List downloaded files (debug)
-        run: ls -la
+            - name: Download artifact
+              uses: actions/download-artifact@v4
+              with:
+                  name: build-dist
+                  path: .
+                  # path: ./dist
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
-        
-      - name: Upload to GitHub Pages
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: .
-          
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
-      # - name: Deploy to Github Pages(gh-pages)
-      #   uses: JamesIves/github-pages-deploy-action@4.1.0
-      #   with:
-      #     branch: gh-pages
-      #     folder: .
-      #     # folder: ./dist
-            
+            - name: List downloaded files (debug)
+              run: ls -la
 
-      - name: Notify Slack
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          channel-id: ${{ vars.SLACK_CHANNEL_QA }}  # Your Slack channel ID
-          slack-message: "🚀 Github Pages deployment completed for ${{ github.sha }}"
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+            - name: Setup Pages
+              uses: actions/configure-pages@v5
 
-  # Deployment job
-  # deploy:
-  #   environment:
-  #     name: github-pages
-  #     url: ${{ steps.deployment.outputs.page_url }}
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   steps:
-  #     - name: Deploy to GitHub Pages
-  #       id: deployment
-  #       uses: actions/deploy-pages@v4
+            - name: Upload to GitHub Pages
+              uses: actions/upload-pages-artifact@v3
+              with:
+                  path: .
 
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4
+            # - name: Deploy to Github Pages(gh-pages)
+            #   uses: JamesIves/github-pages-deploy-action@4.1.0
+            #   with:
+            #     branch: gh-pages
+            #     folder: .
+            #     # folder: ./dist
 
+            - name: Notify Slack
+              uses: slackapi/slack-github-action@v1.26.0
+              with:
+                  channel-id: ${{ vars.SLACK_CHANNEL_QA }} # Your Slack channel ID
+                  slack-message: "🚀 Github Pages deployment completed for ${{ github.sha }}"
+              env:
+                  SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
+    # Deployment job
+    # deploy:
+    #   environment:
+    #     name: github-pages
+    #     url: ${{ steps.deployment.outputs.page_url }}
+    #   runs-on: ubuntu-latest
+    #   needs: build
+    #   steps:
+    #     - name: Deploy to GitHub Pages
+    #       id: deployment
+    #       uses: actions/deploy-pages@v4
