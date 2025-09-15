@@ -87,7 +87,7 @@ jobs:
       - name: Upload build output
         uses: actions/upload-artifact@v4
         with:
-          name: web-dist # Logical artifact name
+          name: build-dist # Logical artifact name
           path: frontend/dist/ # Directory or file path to upload
 
   Deploy-to-QA:
@@ -102,7 +102,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: web-dist
+          name: build-dist
 
       - name: Deploy to QA
         run: |
@@ -130,7 +130,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          name: web-dist
+          name: build-dist
 
       - name: Deploy to Production
         run: |
