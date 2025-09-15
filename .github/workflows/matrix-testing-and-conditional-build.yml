@@ -23,11 +23,14 @@ on:
 jobs:
   Matrix-Test:
     runs-on: ${{ matrix.os }}
-    environment: production
+    environment: qa
     # concurrency:
     #   group: matrix-${{ github.ref }}
     #   # group: matrix-test-${{ matrix.os }}-${{ matrix['node-version'] }}-${{ github.ref }}
     #   cancel-in-progress: true
+    defaults:
+      run:
+        working-directory: ./frontend/
     strategy:
       fail-fast: false
       matrix:
@@ -50,6 +53,8 @@ jobs:
           mkdir -p test-results
           npm test > test-results/results-${{ matrix.node-version }}.txt
 
+          # npm test -- --ci > test-results/results-ci-${{ matrix.node-version }}.txt
+
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
@@ -62,12 +67,15 @@ jobs:
     if: |
       (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) &&
       github.event.inputs.skip_build != 'true'
+    defaults:
+      run:
+        working-directory: ./frontend/
     concurrency:
       group: build-${{ github.ref }}
       # group: matrix-test-${{ matrix.os }}-${{ matrix['node-version'] }}-${{ github.ref }}
       cancel-in-progress: true
     environment:
-      name: staging   # Optional: set to production + reviewers for manual approval
+      name: qa   # Optional: set to production + reviewers for manual approval
     steps:
       - name: Download all test results
         uses: actions/download-artifact@v4
@@ -101,7 +109,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-dist
-          path: dist/
+          path: frontend/dist/
 
 
   Deploy-to-Production:
