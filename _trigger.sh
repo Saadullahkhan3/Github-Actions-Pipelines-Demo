@@ -1,1 +1,1 @@
-echo "Change me to trigger actions!"
+echo "Change me to trigger actions! WOW"
