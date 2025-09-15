@@ -75,7 +75,7 @@ jobs:
       github.event.inputs.skip_build != 'true'
     defaults:
       run:
-        working-directory: ./frontend/
+        working-directory: frontend/
     concurrency:
       group: build-${{ github.ref }}
       # group: matrix-test-${{ matrix.os }}-${{ matrix['node-version'] }}-${{ github.ref }}
