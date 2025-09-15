@@ -121,6 +121,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: Build
     if: github.ref == 'refs/heads/main'
+    environment: production
     concurrency:
       group: deploy-prod-${{ github.ref }}
       cancel-in-progress: true

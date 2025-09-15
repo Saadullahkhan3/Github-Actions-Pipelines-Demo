@@ -15,7 +15,7 @@ flowchart TD
     D --> E{"Push on main, dev"}
     E --> |NO| H["Skip the Build and Deployment"]
     E --> |YES| I["Build"]
-    I --> J{"Environment?"}
+    I --> J{"Environment <br/> by branch"}
     J --> |main| K["Production"]
     J --> |dev| L["QA if dev"]
 ```
