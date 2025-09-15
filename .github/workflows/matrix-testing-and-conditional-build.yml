@@ -118,11 +118,11 @@ jobs:
           path: frontend/dist/
 
 
-  Deploy-to-QA:
+  Deploy-to-GH-Pages:
     runs-on: ubuntu-latest
     needs: Build
     if: github.ref == 'refs/heads/dev'
-    environment: qa
+    environment: production
     concurrency:
       group: deploy-qa-${{ github.ref }}
       cancel-in-progress: true
@@ -131,22 +131,33 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-dist
-
-      - name: Deploy to QA
-        run: |
-          echo "Deploying to QA environment..."
-          echo "Build artifacts downloaded successfully"
-          ls -la
+          
+      - name: Deploy to Github Pages(gh-pages)
+        uses: JamesIves/github-pages-deploy-action@4.1.0
+        with:
+          branch: gh-pages
+          folder: build-
+            
 
       - name: Notify Slack
         uses: slackapi/slack-github-action@v1.26.0
         with:
-          channel-id: ${{ vars.SLACK_CHANNEL_QA }}  # Your Slack channel ID
-          slack-message: "🚀 QA deployment completed for ${{ github.sha }}"
+          channel-id: ${{ vars.SLACK_CHANNEL_PRODUCTION }}  # Your Slack channel ID
+          slack-message: "🚀 Github Pages Production deployment completed for ${{ github.sha }}"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
-
+  # Deployment job
+  # deploy:
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   steps:
+  #     - name: Deploy to GitHub Pages
+  #       id: deployment
+  #       uses: actions/deploy-pages@v4
 
 
 
