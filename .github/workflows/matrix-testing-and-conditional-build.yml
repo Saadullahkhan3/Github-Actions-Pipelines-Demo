@@ -57,7 +57,7 @@ jobs:
       - name: Run tests
         run: |
           mkdir -p test-results
-          npm test > test-results/results-${{ matrix.node-version }}.txt
+          npm test > test-results/results-${{ matrix.os }}-${{ matrix.node-version }}.txt
 
           # npm test -- --ci > test-results/results-ci-${{ matrix.node-version }}.txt
 
