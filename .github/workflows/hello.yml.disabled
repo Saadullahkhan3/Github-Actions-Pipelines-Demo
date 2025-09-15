@@ -9,14 +9,16 @@ on:
 
 jobs:
   Greeting:
-    # OLD: This spelling mistake is the reason that this action was 
-    # stucked in queue for more than 19 hours and stopped force-fully
+    # OLD: This spelling mistake was the reason that this action was stucked 
+    # in queue for more than 19 hours and also manual trigger didn't helped
     # They should gave error instead! this is more like a BUG
     # runs-on: ubuntu-lastest   
+
     runs-on: ubuntu-latest
 
     # Bash couldn't access the Github's variables and secrets directly,
-    # these vars needed to be set as env vars in order to access them in bash. THIS IS THE ONLY WAY!
+    # these vars needed to be set as env vars in order to access them in bash. 
+    # THIS IS THE ONLY WAY!
     env:
       YOUR_NAME: ${{ vars.YOUR_NAME }} 
       MY_NAME: ${{ vars.MY_NAME }}
