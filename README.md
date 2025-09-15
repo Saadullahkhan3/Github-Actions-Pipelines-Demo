@@ -20,3 +20,8 @@ flowchart TD
     J --> |dev| L["QA if dev"]
 ```
 
+Lint
+Test
+Build
+Deploy to Prod
+Deploy to QA

@@ -16,7 +16,7 @@ on:
         default: "false"
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: matrix-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -91,3 +91,29 @@ jobs:
         with:
           name: build-dist
           path: dist/
+
+
+
+
+
+
+
+
+
+
+
+# jobs:
+#   test-matrix: # Job that runs across a matrix
+#     runs-on: ${{ matrix.os }} # Runner OS chosen per matrix row
+#     strategy:
+#       matrix:
+#         os: [ubuntu-latest, windows-latest] # Two operating systems
+#         node: [18, 20] # Two Node versions (creates 4 combos)
+#     steps:
+#       - uses: actions/checkout@v4 # Checkout code for this combo
+#       - uses: actions/setup-node@v4 # Configure Node runtime
+#         with:
+#           node-version: ${{ matrix.node }} # Version from matrix
+#           cache: npm # Cache dependencies
+#       - run: npm ci # Install dependencies
+#       - run: npm test -- --ci # Run tests in CI mode
