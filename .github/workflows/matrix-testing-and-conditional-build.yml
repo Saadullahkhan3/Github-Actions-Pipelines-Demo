@@ -61,6 +61,9 @@ jobs:
 
           # npm test -- --ci > test-results/results-ci-${{ matrix.node-version }}.txt
 
+      - name: Debug
+        run: echo $(frontend/test-results/results-${{ matrix.os }}-${{ matrix.node-version }}.txt)
+        
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
