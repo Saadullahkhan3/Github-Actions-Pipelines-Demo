@@ -146,7 +146,7 @@ jobs:
 
       - name: Production Status
         if: always()
-        uses: ./.github/actions/status-notifier
+        uses: ./.github/actions/slack-status-notifier
         with:
           success-message: "🚀 PRODUCTION LIVE - All systems go!"
           failure-message: "🚨 CRITICAL: Production deployment FAILED!"
