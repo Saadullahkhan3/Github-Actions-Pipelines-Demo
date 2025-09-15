@@ -144,13 +144,14 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
-      - name: Production Status
-        if: always()
-        uses: ./.github/actions/slack-status-notifier
-        with:
-          success-message: "🚀 PRODUCTION LIVE - All systems go!"
-          failure-message: "🚨 CRITICAL: Production deployment FAILED!"
-          cancelled-message: "⏹️ Production deployment halted"
-          slack-channel: ${{ secrets.SLACK_CHANNEL_PRODUCTION }}
-          slack-token: ${{ secrets.SLACK_BOT_TOKEN }}
+			# CUSTOM ACTION DIDN'T WORK, IGNORING FOR NOW
+      # - name: Production Status
+      #   if: always()
+      #   uses: ./.github/actions/slack-status-notifier
+      #   with:
+      #     success-message: "🚀 PRODUCTION LIVE - All systems go!"
+      #     failure-message: "🚨 CRITICAL: Production deployment FAILED!"
+      #     cancelled-message: "⏹️ Production deployment halted"
+      #     slack-channel: ${{ secrets.SLACK_CHANNEL_PRODUCTION }}
+      #     slack-token: ${{ secrets.SLACK_BOT_TOKEN }}
 
