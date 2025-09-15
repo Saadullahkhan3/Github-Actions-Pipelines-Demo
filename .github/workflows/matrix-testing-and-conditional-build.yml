@@ -67,7 +67,7 @@ jobs:
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-${{ matrix.node-version }}
+          name: test-results-${{ matrix.os }}-${{ matrix.node-version }}
           path: frontend/test-results/results-${{ matrix.os }}-${{ matrix.node-version }}.txt
 
   Build:
