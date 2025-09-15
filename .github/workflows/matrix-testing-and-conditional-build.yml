@@ -65,7 +65,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.node-version }}
-          path: frontend/test-results/results-${{ matrix.node-version }}.txt
+          path: frontend/test-results/results-${{ matrix.os }}-${{ matrix.node-version }}.txt
 
   Build:
     runs-on: ubuntu-latest
@@ -127,16 +127,25 @@ jobs:
       group: deploy-qa-${{ github.ref }}
       cancel-in-progress: true
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: build-dist
+          path: .
+          # path: ./dist
           
+      - name: List downloaded files (debug)
+        run: ls -la
+
       - name: Deploy to Github Pages(gh-pages)
         uses: JamesIves/github-pages-deploy-action@4.1.0
         with:
           branch: gh-pages
-          folder: build-dist
+          folder: .
+          # folder: ./dist
             
 
       - name: Notify Slack
