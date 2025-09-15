@@ -95,11 +95,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Summarize test results
-        run: |
-          echo "=== Combined Test Results ==="
-          cat test-results/*/results-*.txt > test-results/all-results.txt
-          cat test-results/all-results.txt
+      # - name: Summarize test results
+      #   run: |
+      #     echo "=== Combined Test Results ==="
+      #     cat test-results/*/results-*.txt > test-results/all-results.txt
+      #     cat test-results/all-results.txt
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
