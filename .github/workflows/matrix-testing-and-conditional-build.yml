@@ -16,7 +16,10 @@ on:
         default: "false"
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
 # concurrency:
 #   group: matrix-${{ github.ref }}
 #   cancel-in-progress: true
@@ -84,8 +87,6 @@ jobs:
       group: build-${{ github.ref }}
       # group: matrix-test-${{ matrix.os }}-${{ matrix['node-version'] }}-${{ github.ref }}
       cancel-in-progress: true
-    environment:
-      name: qa   # Optional: set to production + reviewers for manual approval
     steps:
       - name: Download all test results
         uses: actions/download-artifact@v4
@@ -144,12 +145,23 @@ jobs:
       - name: List downloaded files (debug)
         run: ls -la
 
-      - name: Deploy to Github Pages(gh-pages)
-        uses: JamesIves/github-pages-deploy-action@4.1.0
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+        
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v2
         with:
-          branch: gh-pages
-          folder: .
-          # folder: ./dist
+          path: .
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
+      # - name: Deploy to Github Pages(gh-pages)
+      #   uses: JamesIves/github-pages-deploy-action@4.1.0
+      #   with:
+      #     branch: gh-pages
+      #     folder: .
+      #     # folder: ./dist
             
 
       - name: Notify Slack
