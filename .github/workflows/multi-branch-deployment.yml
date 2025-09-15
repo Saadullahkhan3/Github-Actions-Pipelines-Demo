@@ -109,6 +109,14 @@ jobs:
           echo "Build artifacts downloaded successfully"
           ls -la
 
+      - name: Notify Slack
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          channel-id: ${{ secrets.SLACK_CHANNEL_QA }}  # Your Slack channel ID
+          slack-message: "🚀 QA deployment completed for ${{ github.sha }}"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
   Deploy-to-Production:
     runs-on: ubuntu-latest
     needs: Build
@@ -137,7 +145,7 @@ jobs:
       - name: Notify Slack
         uses: slackapi/slack-github-action@v1.26.0
         with:
-          channel-id: 'C1234567890'  # Your Slack channel ID
+          channel-id: ${{ secrets.SLACK_CHANNEL_PRODUCTION }}  # Your Slack channel ID
           slack-message: "🚀 Production deployment completed for ${{ github.sha }}"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
