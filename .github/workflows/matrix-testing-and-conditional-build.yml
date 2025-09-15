@@ -15,7 +15,8 @@ on:
         required: false
         default: "false"
 
-
+permissions:
+  contents: write
 # concurrency:
 #   group: matrix-${{ github.ref }}
 #   cancel-in-progress: true
@@ -91,11 +92,11 @@ jobs:
         with:
           path: test-results
 
-      # - name: Summarize test results
-      #   run: |
-      #     echo "=== Combined Test Results ==="
-      #     cat test-results/*/results-*.txt > test-results/all-results.txt
-      #     cat test-results/all-results.txt
+      - name: Summarize test results
+        run: |
+          echo "=== Combined Test Results ==="
+          cat test-results/*/results-*.txt > test-results/all-results.txt
+          cat test-results/all-results.txt
 
       - name: Checkout code
         uses: actions/checkout@v4
