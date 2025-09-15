@@ -1,0 +1,58 @@
+name: 'Status Notifier'
+description: 'Sends customized messages based on job status'
+inputs:
+  success-message:
+    description: 'Message to send on success'
+    required: false
+    default: '✅ Operation completed successfully'
+  failure-message:
+    description: 'Message to send on failure'
+    required: false
+    default: '❌ Operation failed'
+  cancelled-message:
+    description: 'Message to send on cancellation'
+    required: false
+    default: '⚠️ Operation was cancelled'
+  slack-channel:
+    description: 'Slack channel ID'
+    required: true
+  slack-token:
+    description: 'Slack bot token'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Determine Status and Message
+      id: status
+      shell: bash
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "message=${{ inputs.success-message }}" >> $GITHUB_OUTPUT
+          echo "emoji=✅" >> $GITHUB_OUTPUT
+        elif [ "${{ job.status }}" == "failure" ]; then
+          echo "message=${{ inputs.failure-message }}" >> $GITHUB_OUTPUT
+          echo "emoji=❌" >> $GITHUB_OUTPUT
+        elif [ "${{ job.status }}" == "cancelled" ]; then
+          echo "message=${{ inputs.cancelled-message }}" >> $GITHUB_OUTPUT
+          echo "emoji=⚠️" >> $GITHUB_OUTPUT
+        else
+          echo "message=Status: ${{ job.status }}" >> $GITHUB_OUTPUT
+          echo "emoji=ℹ️" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Send Notification
+      uses: slackapi/slack-github-action@v1.26.0
+      with:
+        channel-id: ${{ inputs.slack-channel }}
+        slack-message: |
+          ${{ steps.status.outputs.emoji }} ${{ steps.status.outputs.message }}
+          
+          📋 **Details:**
+          • Repository: ${{ github.repository }}
+          • Branch: ${{ github.ref_name }}
+          • Commit: ${{ github.sha }}
+          • Author: ${{ github.actor }}
+          • Status: ${{ job.status }}
+      env:
+        SLACK_BOT_TOKEN: ${{ inputs.slack-token }}

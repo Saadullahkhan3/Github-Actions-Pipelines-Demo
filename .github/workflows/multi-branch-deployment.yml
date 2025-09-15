@@ -135,12 +135,6 @@ jobs:
           echo "Deploying to Production environment..."
           echo "Build artifacts downloaded successfully"
           ls -la
-
-      - name: Notify Slack
-        if: always()
-        run: |
-          echo "📢 Notify Slack: Production deploy completed for $GITHUB_SHA"
-          # Replace with actual Slack action/webhook if available
       
       - name: Notify Slack
         uses: slackapi/slack-github-action@v1.26.0
@@ -149,3 +143,15 @@ jobs:
           slack-message: "🚀 Production deployment completed for ${{ github.sha }}"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+			# Production Deployment  
+      - name: Production Status
+        if: always()
+        uses: ./.github/actions/status-notifier
+        with:
+          success-message: "🚀 PRODUCTION LIVE - All systems go!"
+          failure-message: "🚨 CRITICAL: Production deployment FAILED!"
+          cancelled-message: "⏹️ Production deployment halted"
+          slack-channel: ${{ secrets.SLACK_CHANNEL_PRODUCTION }}
+          slack-token: ${{ secrets.SLACK_BOT_TOKEN }}
+
