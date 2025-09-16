@@ -117,25 +117,44 @@ jobs:
       group: deploy-gh-pages-${{ github.ref }}
       cancel-in-progress: true
     steps:
-      - name: Checkout repository
+      - name: Try to download existing github-pages artifact
+        id: check-existing
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: ./github-pages-check
+        continue-on-error: true
+
+      - name: Check if existing artifact is valid
+        id: validate-existing
+        run: |
+          if [ -d "./github-pages-check" ] && [ "$(ls -A ./github-pages-check 2>/dev/null)" ]; then
+            echo "existing=true" >> $GITHUB_OUTPUT
+            echo "✅ Found existing github-pages artifact - will reuse it"
+          else
+            echo "existing=false" >> $GITHUB_OUTPUT
+            echo "📦 No valid existing artifact - will create new one"
+          fi
+
+      - name: Checkout repository (for new artifact)
+        if: steps.validate-existing.outputs.existing == 'false'
         uses: actions/checkout@v4
 
-      - name: Download artifact
+      - name: Download build artifact (for new artifact)
+        if: steps.validate-existing.outputs.existing == 'false'
         uses: actions/download-artifact@v4
         with:
           name: build-dist
-          path: .
+          path: ./new-build
           
-      - name: List downloaded files (debug)
-        run: ls -la
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
         
-      - name: Upload to GitHub Pages
+      - name: Upload to GitHub Pages (new artifact only)
+        if: steps.validate-existing.outputs.existing == 'false'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: ./new-build
           
       - name: Deploy to GitHub Pages
         id: deployment
@@ -144,8 +163,13 @@ jobs:
       - name: Notify Slack
         uses: slackapi/slack-github-action@v1.26.0
         with:
-          channel-id: ${{ vars.SLACK_CHANNEL_GH_PAGES }}  # Your Slack channel ID
-          slack-message: "🚀 Github Pages deployment completed for ${{ github.sha }}"
+          channel-id: ${{ vars.SLACK_CHANNEL_GH_PAGES }}
+          slack-message: |
+            🚀 **GitHub Pages Deployment Completed**
+            📋 **Method:** ${{ steps.validate-existing.outputs.existing == 'true' && '♻️ Reused existing artifact' || '📦 Created new artifact' }}
+            📂 **Repository:** `${{ github.repository }}`
+            🔗 **URL:** ${{ steps.deployment.outputs.page_url }}
+            💾 **Commit:** `${{ github.sha }}`
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
