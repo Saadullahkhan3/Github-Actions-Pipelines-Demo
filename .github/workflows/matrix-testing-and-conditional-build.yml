@@ -45,6 +45,7 @@ jobs:
         run: npm ci
 
       - name: Run tests with coverage
+        shell: bash
         run: |
           mkdir -p test-results
           npm test -- --coverage --ci \
@@ -191,9 +192,7 @@ jobs:
           
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4        
-        with:
-          wait-for-deployment: true
+        uses: actions/deploy-pages@v4
 
       - name: Set Slack message on success
         if: ${{ steps.deployment.outcome == 'success' }}
