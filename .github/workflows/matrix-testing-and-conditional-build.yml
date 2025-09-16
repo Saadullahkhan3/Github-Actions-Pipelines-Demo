@@ -165,11 +165,9 @@ jobs:
         with:
           channel-id: ${{ vars.SLACK_CHANNEL_GH_PAGES }}
           slack-message: |
-            🚀 **GitHub Pages Deployment Completed**
-            📋 **Method:** ${{ steps.validate-existing.outputs.existing == 'true' && '♻️ Reused existing artifact' || '📦 Created new artifact' }}
-            📂 **Repository:** `${{ github.repository }}`
-            🔗 **URL:** ${{ steps.deployment.outputs.page_url }}
-            💾 **Commit:** `${{ github.sha }}`
+            🚀 *GitHub Pages Deployment Completed*
+            - *Method:* ${{ steps.validate-existing.outputs.existing == 'true' && '♻️ Reused existing artifact' || '📦 Created new artifact' }}
+            - *Commit:* `${{ github.sha }}`
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
