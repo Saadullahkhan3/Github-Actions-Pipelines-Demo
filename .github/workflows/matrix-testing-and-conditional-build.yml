@@ -117,23 +117,26 @@ jobs:
       group: deploy-gh-pages-${{ github.ref }}
       cancel-in-progress: true
     steps:
-      - name: Try to download existing github-pages artifact
+      - name: Try to download existing github-pages artifact (silent)
         id: check-existing
         uses: actions/download-artifact@v4
         with:
           name: github-pages
           path: ./github-pages-check
         continue-on-error: true
+        env:
+          # Suppress error output from the action
+          ACTIONS_STEP_DEBUG: false
 
       - name: Check if existing artifact is valid
         id: validate-existing
         run: |
           if [ -d "./github-pages-check" ] && [ "$(ls -A ./github-pages-check 2>/dev/null)" ]; then
             echo "existing=true" >> $GITHUB_OUTPUT
-            echo "✅ Found existing github-pages artifact - will reuse it"
+            echo "Found existing github-pages artifact - will reuse it"
           else
             echo "existing=false" >> $GITHUB_OUTPUT
-            echo "📦 No valid existing artifact - will create new one"
+            echo "No valid existing artifact - will create new one"
           fi
 
       - name: Checkout repository (for new artifact)
@@ -165,11 +168,9 @@ jobs:
         with:
           channel-id: ${{ vars.SLACK_CHANNEL_GH_PAGES }}
           slack-message: |
-            🚀 **GitHub Pages Deployment Completed**
-            📋 **Method:** ${{ steps.validate-existing.outputs.existing == 'true' && '♻️ Reused existing artifact' || '📦 Created new artifact' }}
-            📂 **Repository:** `${{ github.repository }}`
-            🔗 **URL:** ${{ steps.deployment.outputs.page_url }}
-            💾 **Commit:** `${{ github.sha }}`
+            🚀 *GitHub Pages Deployment Completed*
+            - *Method:* ${{ steps.validate-existing.outputs.existing == 'true' && '♻️ Reused existing artifact' || '📦 Created new artifact' }}
+            - *Commit:* `${{ github.sha }}`
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
 
