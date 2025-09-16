@@ -44,15 +44,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
+      - name: Run tests with coverage
         run: |
           mkdir -p test-results
-          npm test > test-results/results-${{ matrix.os }}-${{ matrix.node-version }}.txt
-
-          # npm test -- --ci > test-results/results-ci-${{ matrix.node-version }}.txt
-
-      - name: Debug
-        run: echo "frontend/test-results/results-${{ matrix.os }}-${{ matrix.node-version }}.txt"
+          npm test -- --coverage --ci \
+            --coverageReporters=text-summary \
+            > test-results/results-${{ matrix.os }}-${{ matrix.node-version }}.txt
         
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -60,9 +57,35 @@ jobs:
           name: test-results-${{ matrix.os }}-${{ matrix.node-version }}
           path: frontend/test-results/results-${{ matrix.os }}-${{ matrix.node-version }}.txt
 
-  Build:
+  Check-Coverage:
     runs-on: ubuntu-latest
     needs: Matrix-Test
+    steps:
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          path: test-results
+
+      - name: Extract coverage percentage
+        id: coverage
+        run: |
+          # Look for the "All files" line in coverage summary
+          coverage=$(grep -m 1 "All files" test-results/*/results-*.txt | awk '{print $3}' | tr -d '%')
+          echo "coverage=$coverage" >> $GITHUB_OUTPUT
+          echo "Detected coverage: $coverage%"
+
+      - name: Fail if coverage < 70
+        run: |
+          if [ ${{ steps.coverage.outputs.coverage }} -lt 70 ]; then
+            echo "❌ Coverage below threshold (found ${{ steps.coverage.outputs.coverage }}%)"
+            exit 1
+          else
+            echo "✅ Coverage is acceptable: ${{ steps.coverage.outputs.coverage }}%"
+          fi
+
+  Build:
+    runs-on: ubuntu-latest
+    needs: Check-Coverage
     if: |
       (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) &&
       github.event.inputs.skip_build != 'true'
