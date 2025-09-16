@@ -74,12 +74,40 @@ jobs:
           ls -R test-results || true
           cat test-results/*/results-*.txt || true
 
-          # Try to extract coverage from test results
-          # "All files" , "Lines" , "Statements"
-          coverage=$(grep -m 1 "Lines" test-results/*/results-*.txt | awk '{print $3}' | tr -d '%' || echo "0")
+          # Extract all coverage values (strip %)
+          line_values=$(grep "Lines" test-results/*/results-*.txt | awk -F": " '{print $2}' | awk '{print $1}' | tr -d '%')
+          statement_values=$(grep "Statements" test-results/*/results-*.txt | awk -F": " '{print $2}' | awk '{print $1}' | tr -d '%')
+          func_values=$(grep "Functions" test-results/*/results-*.txt | awk -F": " '{print $2}' | awk '{print $1}' | tr -d '%')
+          branch_values=$(grep "Branches" test-results/*/results-*.txt | awk -F": " '{print $2}' | awk '{print $1}' | tr -d '%')
 
-          echo "Extracted coverage: $coverage%"
+          # Average function (bash only supports int math)
+          avg() {
+            local values=($@)
+            local sum=0
+            local count=0
+            for v in "${values[@]}"; do
+              sum=$((sum + v))
+              count=$((count + 1))
+            done
+            [ $count -eq 0 ] && echo 0 || echo $((sum / count))
+          }
+
+          line_coverage=$(avg $line_values)
+          statement_coverage=$(avg $statement_values)
+          func_coverage=$(avg $func_values)
+          branches_coverage=$(avg $branch_values)
+
+          coverage=$(( (line_coverage + statement_coverage + func_coverage + branches_coverage) / 4 ))
+
+          echo "========== SUMMARY =========="
+          echo "Line_coverage: $line_coverage"
+          echo "Statement_coverage: $statement_coverage"
+          echo "Func_coverage: $func_coverage"
+          echo "Branches_coverage: $branches_coverage"
+          echo "Avg Coverage: $coverage"
+
           echo "coverage=$coverage" >> $GITHUB_OUTPUT
+
 
       - name: Fail if coverage < 70
         run: |
