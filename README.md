@@ -27,4 +27,16 @@ Deploy to Prod
 Deploy to QA
 
 
-
+## Matrix Testing & Conditional Build
+Action file: [multi-branch-deployment](./.github/workflows/matrix-testing-and-conditional-build.yml)
+Matrix Test
+Build
+Deploy (self contained, if run alone then use old artifacts )
+```mermaid
+flowchart TD
+    A[Matrix Test, Build and Deploy] -->|"Push on main<br/> or tag(v*.*.*)"| B(Matrix Test)
+    B --> C[Build]
+    C --> |"Required<br/>Approval"| D{"Deploy to <br/>Github pages"}
+    D -->|Manual Trigger| E["Use existing<br/>Github Pages artifact"]
+    D -->|Auto Trigger| F["Create new Github<br/> pages artifact"]
+```
