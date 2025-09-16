@@ -75,7 +75,8 @@ jobs:
           cat test-results/*/results-*.txt || true
 
           # Try to extract coverage from test results
-          coverage=$(grep -m 1 "All files" test-results/*/results-*.txt | awk '{print $3}' | tr -d '%' || echo "0")
+          # "All files" , "Lines" , "Statements"
+          coverage=$(grep -m 1 "Lines" test-results/*/results-*.txt | awk '{print $3}' | tr -d '%' || echo "0")
 
           echo "Extracted coverage: $coverage%"
           echo "coverage=$coverage" >> $GITHUB_OUTPUT
@@ -183,6 +184,22 @@ jobs:
       group: deploy-gh-pages-${{ github.ref }}
       cancel-in-progress: true
     steps:
+      - name: Try to download existing github-pages artifact
+        id: check-existing
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: ./github-pages-check
+        continue-on-error: true
+
+      - name: Delete Previous github-pages artifact if exists
+        id: validate-existing
+        if: ${{ steps.check-existing.outcome == 'success' }}
+        run: echo "Existing github-pages artifact found, deleting..."
+        uses: geekyeggo/delete-artifact@v5
+        with:
+          name: github-pages
+
       - name: Checkout build-archive branch
         uses: actions/checkout@v4
         with:
