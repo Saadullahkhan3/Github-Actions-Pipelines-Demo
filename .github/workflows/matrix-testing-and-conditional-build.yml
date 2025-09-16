@@ -108,7 +108,6 @@ jobs:
         working-directory: frontend/
     concurrency:
       group: build-${{ github.ref }}
-      # group: matrix-test-${{ matrix.os }}-${{ matrix['node-version'] }}-${{ github.ref }}
       cancel-in-progress: true
     steps:
       - name: Download all test results
@@ -141,7 +140,7 @@ jobs:
 
   Save-Build-To-Branch:
     runs-on: ubuntu-latest
-    needs: Build   
+    needs: Build
     steps:
       - name: Checkout empty repo
         uses: actions/checkout@v4
@@ -195,9 +194,8 @@ jobs:
       - name: Delete Previous github-pages artifact if exists
         id: validate-existing
         if: ${{ steps.check-existing.outcome == 'success' }}
-        run: echo "Existing github-pages artifact found, deleting..."
-        uses: geekyeggo/delete-artifact@v5
-        with:
+        uses: geekyeggo/delete-artifact@v5 
+        with:          
           name: github-pages
 
       - name: Checkout build-archive branch
