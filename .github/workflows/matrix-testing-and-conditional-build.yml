@@ -58,7 +58,7 @@ jobs:
           name: test-results-${{ matrix.os }}-${{ matrix.node-version }}
           path: frontend/test-results/results-${{ matrix.os }}-${{ matrix.node-version }}.txt
 
-  Check-Coverage:
+  Test-Coverage-Report:
     runs-on: ubuntu-latest
     needs: Matrix-Test
     steps:
@@ -67,12 +67,13 @@ jobs:
         with:
           path: test-results
 
-      - name: Extract coverage percentage
+      - name: Extract and show Test Coverage Summary
         id: coverage
         run: |
           echo "=== Dumping test results for debug ==="
-          ls -R test-results || true
-          cat test-results/*/results-*.txt || true
+          # Should I enable them or Not?
+          # ls -R test-results || true
+          # cat test-results/*/results-*.txt || true
 
           # Extract all coverage values (strip %)
           line_values=$(grep "Lines" test-results/*/results-*.txt | awk -F": " '{print $2}' | awk '{print $1}' | tr -d '%')
@@ -99,12 +100,13 @@ jobs:
 
           coverage=$(( (line_coverage + statement_coverage + func_coverage + branches_coverage) / 4 ))
 
-          echo "========== SUMMARY =========="
-          echo "Line_coverage: $line_coverage"
-          echo "Statement_coverage: $statement_coverage"
-          echo "Func_coverage: $func_coverage"
-          echo "Branches_coverage: $branches_coverage"
-          echo "Avg Coverage: $coverage"
+          echo "=== Test Coverage SUMMARY ===" > coverage-summary.txt
+          echo "Line_coverage: $line_coverage" >> coverage-summary.txt
+          echo "Statement_coverage: $statement_coverage" >> coverage-summary.txt
+          echo "Func_coverage: $func_coverage" >> coverage-summary.txt
+          echo "Branches_coverage: $branches_coverage" >> coverage-summary.txt
+          echo -e "\nAvg Coverage: $coverage" >> coverage-summary.txt
+          echo "=============================" >> coverage-summary.txt
 
           echo "coverage=$coverage" >> $GITHUB_OUTPUT
 
@@ -123,11 +125,17 @@ jobs:
           else
             echo "✅ Coverage is acceptable: $coverage%"
           fi
+      
+      - name: Upload coverage summary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-summary
+          path: coverage-summary.txt
 
 
   Build:
     runs-on: ubuntu-latest
-    needs: Check-Coverage
+    needs: Test-Coverage-Report
     if: |
       (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) &&
       github.event.inputs.skip_build != 'true'
