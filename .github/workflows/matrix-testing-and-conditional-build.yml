@@ -31,15 +31,8 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        include:
-          - name: Node Current
-            if: ${{ github.event_name == 'schedule' }}
-            node-version: current
-            os: ubuntu-latest
-          - name: Normal
-            if: ${{ github.event_name != 'schedule' }}
-            os: ['ubuntu-latest','windows-latest']
-            node-version: ['16','18','20']
+        os: ['ubuntu-latest','windows-latest']
+        node-version: ['16','18','20']
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

@@ -51,6 +51,7 @@ flowchart TD
     E -->|Auto Trigger| F["Use build from <br/>build-archive branch"]
     Y["Manual Trigger"] -->|Direct Deploy| F
     Z["Nightly Job<br/>Run Test Only"] --> |"3 AM UTC"| B
+    F --> O["Slack Notification"]
 ```
 
 Run on Every PR and Push on (main, dev):
