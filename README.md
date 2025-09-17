@@ -3,7 +3,7 @@
 ## Multi-Branch Deployment
 
 Action file: [multi-branch-deployment](./.github/workflows/multi-branch-deployment.yml)
-Run on Every PR and for Push if on `main`, `dev` branch
+
 
 ```mermaid
 flowchart TD
@@ -20,48 +20,61 @@ flowchart TD
     J --> |dev| L["QA if dev"]
 ```
 
-Lint
-Test
-Build
-Deploy to Prod
-Deploy to QA
+Run on Every PR and Push on (main, dev):
+- Lint: 
+    - Description: Check code quality
+- Test: 
+    - Description: Test the code
+    - Needs: Lint
+- Build: 
+    - Description: Build the react app
+    - Condtion: Only if push on (main, dev)
+    - Needs: Test
+- Deploy to Production: 
+    - Description: Deployment to Production Env.
+    - Condtion: Only if push on (main)
+    - Needs: Build
+- Deploy to QA: 
+    - Description: Deployment to QA Env.
+    - Condtion: Only if push on (dev)
+    - Needs: Build
 
 
 ## Matrix Testing & Conditional Build
-Action file: [multi-branch-deployment](./.github/workflows/matrix-testing-and-conditional-build.yml)
-Matrix Test
-Build
-Deploy (self contained, if run alone then use old artifacts )
+Action file: [matrix-testing-and-conditional-build](./.github/workflows/matrix-testing-and-conditional-build.yml)
 ```mermaid
 flowchart TD
     A[Matrix Test, Build and Deploy] -->|"Push on main<br/> or tag(v*.*.*)"| B(Matrix Test)
-    B --> C[Build]
-    C --> |"Required<br/>Approval"| D{"Deploy to <br/>Github pages"}
-    D -->|Manual Trigger| E["Use existing<br/>Github Pages artifact"]
-    D -->|Auto Trigger| F["Create new Github<br/> pages artifact"]
+    B --> C{"Test Result"} 
+    C --> |"70%+"| D[Build] --> |"Required<br/>Approval"| E{"Deploy to <br/>Github pages"}
+    C --> |"< 70%"| T["Cancel workflow"]
+    E -->|Auto Trigger| F["Use build from <br/>build-archive branch"]
+    Y["Manual Trigger"] -->|Direct Deploy| F
+    Z["Nightly Job<br/>Run Test Only"] --> |"3 AM UTC"| B
 ```
 
-You must ensure your Node.js project works across multiple runtimes before building artifacts.
+Run on Every PR and Push on (main, dev):
+- Matrix Test: 
+    - Description: Test Code on Nodejs 16, 18 and 20. On both `windows` and `ubuntu-latest`. Generate artifact for each version test
+- Test Report: 
+    - Description: Generate the summary of all tests, Fail if failure is more than 70%. Generate `matrix-test-coverage-summary.txt` artifact.
+    - Needs: Matrix Test
+- Build: 
+    - Description: Build the react app. Generate build artifact
+    - Condtion: Only if push on (main) OR push tag(v*.*.*)
+    - Needs: Test Report
+- Add Build to branch: 
+    - Description: Save the most latest build in `build-archive` branch
+    - Needs: Build
+- Deploy to Github Pages: 
+    - Description: Deployment to Github Pages. Pull the code from `build-archive` branch.
+    - Condtion: Required manual approval. Either trigger by github action OR can also be triggered manualy (set direct_deploy = true)
+    - Needs: Add Build to branch
 
-✅ Goals
-Matrix Test for Node 16, 18, 20
-
-Matrix Test Coverage Report
-Build only when Push to main, OR Push a version tag matching v*.*.*.
 
 
-Use artifacts to collect outputs.
-Add manual approval before publishing build artifact.
-- Yes
-Cancel superseded runs on same branch.
-- Yes
+- ✅: Add a summary step that concatenates test results.
+- ✅: Fail workflow if a minimum number of tests decreases (track via saved artifact + diff).
+- ✅: Introduce a scheduled run (cron) to test nightly against node:current.
+- ✅: Add a manual workflow_dispatch input to skip build.
 
-
-Add a summary step that concatenates test results.
-- Yes
-Fail workflow if a minimum number of tests decreases (track via saved artifact + diff).
-- Yes
-Introduce a scheduled run (cron) to test nightly against node:current.
-- Yes
-Add a manual workflow_dispatch input to skip build.
-- Yes, (Direct Deploy option)
