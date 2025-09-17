@@ -76,6 +76,6 @@ Run on Every PR and Push on (main, dev):
 
 - ✅: Add a summary step that concatenates test results.
 - ✅: Fail workflow if a minimum number of tests decreases (track via saved artifact + diff).
-- ✅: Introduce a scheduled run (cron) to test nightly against node:current.
+- ✅: Introduce a scheduled run (cron) to test nightly against node:current. (Separate Job as it was becoming too complex)
 - ✅: Add a manual workflow_dispatch input to skip build.
 

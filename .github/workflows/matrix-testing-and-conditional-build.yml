@@ -22,8 +22,42 @@ permissions:
 
 
 jobs:
+  Nightly-Nodejs-Test:
+    name: Nightly 3AM UTC - Node:current on ubuntu-latest
+    if: ${{ github.event_name == 'schedule'}}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend/
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (ubuntu-latest)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests with coverage
+        shell: bash
+        run: |
+          mkdir -p test-results
+          npm test -- --coverage --ci \
+            --coverageReporters=text-summary \
+            > test-results/nightly-test-result.txt
+        
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-ubuntu-latest-20
+          path: frontend/test-results/nightly-test-result.txt
+
+          
   Run-Matrix-Test:
-    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.direct_deploy != 'true' }}
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.direct_deploy != 'true' || github.event_name != 'schedule' }}
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -131,8 +165,8 @@ jobs:
       - name: Upload coverage summary artifact
         uses: actions/upload-artifact@v4
         with:
-          name: matrix-test-matrix-test-coverage-summary
-          path: matrix-test-matrix-test-coverage-summary.txt
+          name: matrix-test-coverage-summary
+          path: matrix-test-coverage-summary.txt
 
 
   Build:
