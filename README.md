@@ -52,7 +52,7 @@ flowchart TD
     C --> |"< 70%"| T["Cancel workflow"]
     E -->|Auto Trigger| F["Use build from <br/>build-archive branch"]
     Y["Manual Trigger"] -->|Direct Deploy| F
-    Z["Nightly Job<br/>Run Test Only"] --> |"3 AM UTC"| B
+    Z["Nightly Job<br/>Run Test Only"] --> |"3 AM UTC"| P["Nightly-Nodejs-Test"]
     F --> |"GH Pages<br/>Channel"| O["Slack Notification"]
 ```
 
@@ -75,10 +75,7 @@ Run on Every PR and Push on (main, dev):
     - Needs: Add Build to branch
     - Live: [https://saadullahkhan3.github.io/Github-Actions-Pipelines-Demo/](https://saadullahkhan3.github.io/Github-Actions-Pipelines-Demo/)
 
-
-
-- ✅: Add a summary step that concatenates test results.
-- ✅: Fail workflow if a minimum number of tests decreases (track via saved artifact + diff).
-- ✅: Introduce a scheduled run (cron) to test nightly against node:current. (Separate Job as it was becoming too complex)
-- ✅: Add a manual workflow_dispatch input to skip build.
+- Nightly Job:
+    - Description: Run every 3 AM UTC to run test in Node:current and ubuntu-latest. Generate `nightly-test-result.txt`
+    - Note: For the sake of simplicity, I created separate job for it.
 
