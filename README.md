@@ -40,3 +40,28 @@ flowchart TD
     D -->|Manual Trigger| E["Use existing<br/>Github Pages artifact"]
     D -->|Auto Trigger| F["Create new Github<br/> pages artifact"]
 ```
+
+You must ensure your Node.js project works across multiple runtimes before building artifacts.
+
+✅ Goals
+Matrix Test for Node 16, 18, 20
+
+Matrix Test Coverage Report
+Build only when Push to main, OR Push a version tag matching v*.*.*.
+
+
+Use artifacts to collect outputs.
+Add manual approval before publishing build artifact.
+- Yes
+Cancel superseded runs on same branch.
+- Yes
+
+
+Add a summary step that concatenates test results.
+- Yes
+Fail workflow if a minimum number of tests decreases (track via saved artifact + diff).
+- Yes
+Introduce a scheduled run (cron) to test nightly against node:current.
+- Yes
+Add a manual workflow_dispatch input to skip build.
+

@@ -12,7 +12,7 @@ on:
     inputs:
       skip_build:
         description: "Skip build step?"
-        required: false
+        required: true
         default: "false"
 
 permissions:
