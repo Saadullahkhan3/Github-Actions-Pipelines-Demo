@@ -64,4 +64,4 @@ Fail workflow if a minimum number of tests decreases (track via saved artifact +
 Introduce a scheduled run (cron) to test nightly against node:current.
 - Yes
 Add a manual workflow_dispatch input to skip build.
-
+- Yes, (Direct Deploy option)
