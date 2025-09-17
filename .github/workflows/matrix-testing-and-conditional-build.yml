@@ -179,7 +179,8 @@ jobs:
       run:
         working-directory: frontend/
     concurrency:
-      group: build-${{ github.ref }}
+      # build2 because collision with Multi branch environment workflow will occur
+      group: build2-${{ github.ref }}
       cancel-in-progress: true
     steps:
       - name: Download all test results
