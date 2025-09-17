@@ -71,6 +71,7 @@ Run on Every PR and Push on (main, dev):
     - Description: Deployment to Github Pages. Pull the code from `build-archive` branch.
     - Condtion: Required manual approval. Either trigger by github action OR can also be triggered manualy (set direct_deploy = true)
     - Needs: Add Build to branch
+    - Live: [https://saadullahkhan3.github.io/Github-Actions-Pipelines-Demo/](https://saadullahkhan3.github.io/Github-Actions-Pipelines-Demo/)
 
 
 
