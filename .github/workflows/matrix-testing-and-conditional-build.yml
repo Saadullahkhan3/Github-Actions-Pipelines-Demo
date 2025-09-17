@@ -52,7 +52,7 @@ jobs:
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
-          name: test-results-ubuntu-latest-20
+          name: nightly-test-results-${{ github.job }}-${{ github.run_id }}
           path: frontend/test-results/nightly-test-result.txt
 
           
