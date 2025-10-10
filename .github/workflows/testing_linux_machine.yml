@@ -1,0 +1,21 @@
+# .github/workflows/debug-runner.yml
+name: Debug Linux Runner
+
+on:
+  workflow_dispatch:  # run manually from GitHub UI
+
+jobs:
+  debug:
+    name: Interactive Linux Debug Session
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Start tmate session
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true  # only you can access it
